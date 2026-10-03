@@ -5,22 +5,27 @@ Stack: React + Tailwind frontend and Express + PostgreSQL backend for Amhara cro
 
 ## Run locally
 
-1. Start Postgres (Docker):
+1. If your system uses Podman instead of Docker, start the Podman socket, then start Postgres:
 
 ```bash
+systemctl --user enable --now podman.socket
 docker compose up -d
 ```
 
-2. Backend:
+The database container listens on `localhost:5433` to avoid conflicting with a PostgreSQL server already using the default port.
+
+2. Backend (open a new terminal):
 
 ```bash
 cd backend
-cp .env.example .env
+cp -n .env.example .env
 npm install
 npm run dev
 ```
 
-3. Frontend:
+If you already have a `backend/.env`, update its `DATABASE_URL` to the value in `.env.example` so it uses the project database on port `5433`.
+
+3. Frontend (open another terminal):
 
 ```bash
 cd frontend
@@ -30,11 +35,13 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
-Demo accounts (password `password123`):
+The teff harvest image is by [A. Davey](https://www.flickr.com/people/40595948@N00), licensed under [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
+## Demo accounts
+
+The database is seeded with 14 farmers and 14 merchants. Every demo account uses the password `password123`. For example:
 
 - Farmer: Abebe Bekele / `abebe@geberewu.test`
+- Farmer: Yared Solomon / `yared@geberewu.test`
 - Merchant: Yonas Alemu / `yonas@geberewu.test`
-
-New accounts must verify the email address or phone number they registered with before login. Verification and password-reset codes are delivered through Resend for email (`RESEND_API_KEY`, `EMAIL_FROM`) or Twilio for SMS (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`). Add the credentials for your chosen provider to `backend/.env` (use a verified sender address with Resend), and restart the backend. Set `PASSWORD_RESET_JWT_SECRET` to a dedicated secret of at least 32 random bytes (for example, generate one with `openssl rand -hex 32`). The OTP table and account verification schema are installed automatically on backend startup from `backend/migrations/`. Reset and verification requests are rate limited; delivery failures return HTTP 503 and invalidate undelivered codes rather than claiming they were sent. Codes and reset tokens are never returned in development responses. Keep provider credentials private and do not commit `backend/.env`.
-
-Optional: set `PRICE_FEED_URL` to a JSON feed with `{ "etbScale": 1.0 }` to replace the default USD/ETB calibration.
+- Merchant: Biniam Getachew / `biniam@geberewu.test`

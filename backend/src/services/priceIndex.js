@@ -128,7 +128,7 @@ export function validateMerchantPrice(crop, city, price) {
   if (numeric < ref.min || numeric > ref.max) {
     return {
       ok: false,
-      error: `Price is outside today's market range (${ref.min} – ${ref.max} ETB / kuntal).`,
+      error: `Price is outside today's market range (${ref.min} – ${ref.max} ETB / quintal).`,
       reference: ref,
     };
   }

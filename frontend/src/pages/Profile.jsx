@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api";
+import { api, assetUrl } from "../api";
 import { useAuth } from "../AuthContext";
 import { useLang } from "../LangContext";
 import { cityLabel } from "../catalog";
@@ -32,7 +32,7 @@ export default function Profile() {
       const data = await api("/api/auth/profile", { method: "PUT", body: form });
       const token = localStorage.getItem("geberewu_token");
       setSession(token, data.user);
-      setMessage("Saved.");
+      setMessage(t("saved"));
     } catch (err) {
       setError(err.message);
     }
@@ -59,7 +59,7 @@ export default function Profile() {
         <h1 className="font-display text-3xl">{t("profile")}</h1>
         <div className="mt-6 flex items-center gap-4">
           {user.profilePic ? (
-            <img src={user.profilePic} alt="" className="h-20 w-20 rounded-3xl object-cover" />
+            <img src={assetUrl(user.profilePic)} alt="" className="h-20 w-20 rounded-3xl object-cover" />
           ) : (
             <div className="grid h-20 w-20 place-items-center rounded-3xl bg-gold-500/20 font-display text-3xl text-gold-400">
               {user.fullName.slice(0, 1)}

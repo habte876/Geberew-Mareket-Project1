@@ -12,7 +12,7 @@ export function LangProvider({ children }) {
         localStorage.setItem("geberewu_lang", next);
         setLang(next);
       },
-      t: (key) => t(lang, key),
+      t: (key, values) => t(lang, key, values),
     }),
     [lang]
   );

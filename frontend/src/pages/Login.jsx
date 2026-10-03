@@ -10,7 +10,7 @@ export default function Login() {
   const [params] = useSearchParams();
   const next = params.get("next") || "/";
   const navigate = useNavigate();
-  const [form, setForm] = useState({ fullName: "", identifier: "", password: "" });
+  const [form, setForm] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
 
   async function onSubmit(e) {
@@ -22,13 +22,8 @@ export default function Login() {
       navigate(next);
     } catch (err) {
       setError(err.message);
-      if (err.code === "ACCOUNT_NOT_VERIFIED") {
-        setVerificationIdentifier(form.identifier);
-      }
     }
   }
-
-  const [verificationIdentifier, setVerificationIdentifier] = useState("");
 
   return (
     <div className="mx-auto max-w-md">
@@ -36,22 +31,12 @@ export default function Login() {
         {next !== "/" && <p className="mb-4 text-sm text-gold-400">{t("loginForced")}</p>}
         <h1 className="font-display text-3xl">{t("login")}</h1>
         <form className="mt-6 space-y-4" onSubmit={onSubmit}>
-          <input className="field" placeholder={t("fullName")} value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
-          <input className="field" placeholder={t("identifier")} value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} />
-          <input className="field" type="password" placeholder={t("password")} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+          <input className="field" type="text" autoComplete="username" required placeholder={t("identifier")} value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} />
+          <input className="field" type="password" autoComplete="current-password" required placeholder={t("password")} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
           {error && <p className="text-sm text-red-300">{error}</p>}
-          {verificationIdentifier && (
-            <Link
-              className="block text-sm text-gold-400"
-              to={`/register?verify=${encodeURIComponent(verificationIdentifier)}${next !== "/" ? `&next=${encodeURIComponent(next)}` : ""}`}
-            >
-              {t("verifyNow")}
-            </Link>
-          )}
           <button className="btn-gold w-full" type="submit">{t("login")}</button>
         </form>
         <div className="mt-6 flex items-center justify-between text-sm">
-          <Link className="text-gold-400" to="/forgot">{t("forgot")}</Link>
           <Link className="text-cream/70" to={next !== "/" ? `/register?next=${encodeURIComponent(next)}` : "/register"}>{t("newHere")}</Link>
         </div>
       </div>

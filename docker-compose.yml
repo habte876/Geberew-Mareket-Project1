@@ -1,14 +1,14 @@
 services:
   db:
     image: postgres:16
-    container_name: geberewu-pg
+    container_name: geberewu-market-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: geberewu
       POSTGRES_PASSWORD: geberewu
       POSTGRES_DB: geberewu_market
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - geberewu_pg:/var/lib/postgresql/data
 

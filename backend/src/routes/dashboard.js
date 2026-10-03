@@ -30,7 +30,7 @@ router.get("/", authRequired, async (req, res) => {
   let counterparts;
   if (role === "farmer") {
     posts = await query(
-      `SELECT id, crop, city, amount_kuntal AS value, created_at FROM farmer_listings WHERE user_id = $1 ORDER BY created_at DESC`,
+      `SELECT id, crop, city, amount_quintal AS value, created_at FROM farmer_listings WHERE user_id = $1 ORDER BY created_at DESC`,
       [userId]
     );
     counterparts = await query(
@@ -50,7 +50,7 @@ router.get("/", authRequired, async (req, res) => {
     );
     counterparts = await query(
       `SELECT DISTINCT ON (u.id)
-         u.id, u.full_name, u.phone, u.profile_pic, l.crop, l.city, l.amount_kuntal AS extra, l.created_at
+         u.id, u.full_name, u.phone, u.profile_pic, l.crop, l.city, l.amount_quintal AS extra, l.created_at
        FROM farmer_listings l
        JOIN users u ON u.id = l.user_id
        WHERE l.city = $1

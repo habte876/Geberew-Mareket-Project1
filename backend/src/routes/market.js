@@ -48,7 +48,7 @@ router.get("/:crop/:city", authRequired, async (req, res) => {
   const { rows } = await query(
     `SELECT DISTINCT ON (u.id)
        u.id, u.full_name, u.phone, u.profile_pic, u.city,
-       l.amount_kuntal, l.created_at
+       l.amount_quintal, l.created_at
      FROM farmer_listings l
      JOIN users u ON u.id = l.user_id
      WHERE l.crop = $1 AND l.city = $2 AND u.role = 'farmer'
@@ -65,7 +65,7 @@ router.get("/:crop/:city", authRequired, async (req, res) => {
       phone: r.phone,
       profilePic: r.profile_pic,
       city: r.city,
-      amountKuntal: Number(r.amount_kuntal),
+      amountQuintal: Number(r.amount_quintal),
       postedAt: r.created_at,
       starred: starredIds.includes(r.id),
     })),

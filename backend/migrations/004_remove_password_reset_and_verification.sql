@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS otps;
+DROP TABLE IF EXISTS reset_tokens;
+
+ALTER TABLE users
+  DROP COLUMN IF EXISTS is_verified;

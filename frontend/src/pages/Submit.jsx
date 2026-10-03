@@ -10,7 +10,7 @@ export default function Submit() {
   const [crops, setCrops] = useState([]);
   const [cities, setCities] = useState([]);
   const [crop, setCrop] = useState("teff");
-  const [amountKuntal, setAmount] = useState("");
+  const [amountQuintal, setAmount] = useState("");
   const [priceEtb, setPrice] = useState("");
   const [city, setCity] = useState(user?.city || "bahir-dar");
   const [ref, setRef] = useState(null);
@@ -52,11 +52,11 @@ export default function Submit() {
     setMessage("");
     try {
       if (user.role === "farmer") {
-        await api("/api/submissions/farmer", { method: "POST", body: { crop, amountKuntal } });
-        setMessage("Posted.");
+        await api("/api/submissions/farmer", { method: "POST", body: { crop, amountQuintal } });
+        setMessage(t("posted"));
       } else {
         await api("/api/submissions/merchant", { method: "POST", body: { crop, priceEtb, city } });
-        setMessage("Posted.");
+        setMessage(t("posted"));
       }
     } catch (err) {
       setError(err.message);
@@ -90,7 +90,7 @@ export default function Submit() {
             ))}
           </select>
           {user.role === "farmer" ? (
-            <input className="field" type="number" min="0.1" step="0.1" placeholder={t("amount")} value={amountKuntal} onChange={(e) => setAmount(e.target.value)} />
+            <input className="field" type="number" min="0.1" step="0.1" placeholder={t("amount")} value={amountQuintal} onChange={(e) => setAmount(e.target.value)} />
           ) : (
             <>
               <select className="field" value={city} onChange={(e) => setCity(e.target.value)}>

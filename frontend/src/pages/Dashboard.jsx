@@ -18,7 +18,7 @@ export default function Dashboard() {
     api("/api/dashboard").then(setData);
   }, []);
 
-  if (!data) return <p className="text-cream/60">Loading…</p>;
+  if (!data) return <p className="text-cream/60">{t("loading")}</p>;
 
   return (
     <div className="space-y-6">
@@ -62,7 +62,7 @@ export default function Dashboard() {
           {data.posts.map((p) => (
             <p key={p.id} className="text-cream/80">
               {cropLabel(p.crop, lang)} · {cityLabel(p.city, lang)} · {Number(p.value).toLocaleString()}{" "}
-              {user.role === "farmer" ? t("kuntal") : t("etb")}
+              {user.role === "farmer" ? t("quintals") : t("etb")}
             </p>
           ))}
         </div>
@@ -79,7 +79,7 @@ export default function Dashboard() {
             <div key={`${p.id}-${p.crop}`} className="flex justify-between text-sm">
               <span>{p.fullName} · {cropLabel(p.crop, lang)} · {cityLabel(p.city, lang)}</span>
               <span className="text-gold-400">
-                {p.extra} {user.role === "farmer" ? t("etb") : t("kuntal")}
+                {p.extra} {user.role === "farmer" ? t("etb") : t("quintal")}
               </span>
             </div>
           ))}

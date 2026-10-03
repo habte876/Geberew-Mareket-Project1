@@ -17,16 +17,22 @@ export default function Layout({ children }) {
       <header className="sticky top-0 z-40 border-b border-white/10 bg-soil-950/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <Link to="/" className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gold-500 text-xl text-soil-950">ገ</span>
+            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gold-500 text-xl text-soil-950 shadow-glow">ገ</span>
             <div>
               <p className="font-display text-lg leading-none">{t("brand")}</p>
-              <p className="text-xs text-cream/50">Amhara harvest yard</p>
+              <p className="text-xs text-cream/50">{t("taglineShort")}</p>
             </div>
           </Link>
 
           <nav className="flex items-center gap-2 md:gap-3">
+            <Link className="hidden px-3 py-2 text-sm text-cream/65 transition hover:text-gold-400 sm:inline-flex" to="/#crops">
+              {t("crops")}
+            </Link>
             {user ? (
               <>
+                <Link className="hidden px-3 py-2 text-sm text-cream/65 transition hover:text-gold-400 md:inline-flex" to="/dashboard">
+                  {t("dashboard")}
+                </Link>
                 <NavLink className="btn-ghost hidden sm:inline-flex" to="/submit">
                   {submitLabel}
                 </NavLink>
@@ -122,7 +128,7 @@ export default function Layout({ children }) {
 
       <main className="mx-auto max-w-6xl px-4 py-10">{children}</main>
       <footer className="border-t border-white/10 px-4 py-8 text-center text-sm text-cream/40">
-        {t("brand")} · Amhara · {new Date().getFullYear()}
+        {t("brand")} · {new Date().getFullYear()}
       </footer>
     </div>
   );

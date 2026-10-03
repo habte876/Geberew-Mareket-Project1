@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { query } from "./db.js";
-import { CITIES, CROPS } from "./constants.js";
+import { CROPS } from "./constants.js";
 
 const DEMO = [
   { fullName: "Abebe Bekele", email: "abebe@geberewu.test", phone: "+251911000001", role: "farmer", city: "bahir-dar" },
@@ -23,58 +23,100 @@ const DEMO = [
   { fullName: "Samuel Gashaw", email: "samuel@geberewu.test", phone: "+251911000018", role: "merchant", city: "lalibela" },
   { fullName: "Liya Teshome", email: "liya@geberewu.test", phone: "+251911000019", role: "merchant", city: "weldiya" },
   { fullName: "Henok Desta", email: "henok@geberewu.test", phone: "+251911000020", role: "merchant", city: "debark" },
+  { fullName: "Yared Solomon", email: "yared@geberewu.test", phone: "+251911000021", role: "farmer", city: "bahir-dar" },
+  { fullName: "Selamawit Tadesse", email: "selamawit@geberewu.test", phone: "+251911000022", role: "farmer", city: "gondar" },
+  { fullName: "Dawit Fenta", email: "dawit.fenta@geberewu.test", phone: "+251911000023", role: "farmer", city: "dessie" },
+  { fullName: "Mekdes Abebe", email: "mekdes@geberewu.test", phone: "+251911000024", role: "farmer", city: "debre-tabor" },
+  { fullName: "Biniam Getachew", email: "biniam@geberewu.test", phone: "+251911000025", role: "merchant", city: "bahir-dar" },
+  { fullName: "Hana Mengistu", email: "hana.mengistu@geberewu.test", phone: "+251911000026", role: "merchant", city: "gondar" },
+  { fullName: "Fikru Alemu", email: "fikru@geberewu.test", phone: "+251911000027", role: "merchant", city: "dessie" },
+  { fullName: "Eden Woldemariam", email: "eden@geberewu.test", phone: "+251911000028", role: "merchant", city: "debre-tabor" },
 ];
 
-export async function seedIfEmpty() {
-  const { rows } = await query("SELECT COUNT(*)::int AS n FROM users");
-  if (rows[0].n > 0) return;
+const DEMO_FAVORITES = [
+  ["yonas@geberewu.test", "abebe@geberewu.test"],
+  ["selam@geberewu.test", "tigist@geberewu.test"],
+  ["abebe@geberewu.test", "yonas@geberewu.test"],
+  ["helen@geberewu.test", "aster@geberewu.test"],
+  ["dawit@geberewu.test", "mulugeta@geberewu.test"],
+  ["hanna@geberewu.test", "marta@geberewu.test"],
+  ["biniam@geberewu.test", "yared@geberewu.test"],
+  ["selamawit@geberewu.test", "hana.mengistu@geberewu.test"],
+  ["fikru@geberewu.test", "dawit.fenta@geberewu.test"],
+  ["mekdes@geberewu.test", "eden@geberewu.test"],
+  ["yonas@geberewu.test", "yared@geberewu.test"],
+  ["aster@geberewu.test", "biniam@geberewu.test"],
+  ["samuel@geberewu.test", "rahel@geberewu.test"],
+  ["liya@geberewu.test", "rahel@geberewu.test"],
+  ["eden@geberewu.test", "mekdes@geberewu.test"],
+  ["kebede@geberewu.test", "hana.mengistu@geberewu.test"],
+];
 
-  const hash = await bcrypt.hash("password123", 10);
+export async function seedDemoData() {
+  const passwordHash = await bcrypt.hash("password123", 10);
   const ids = {};
-  for (const u of DEMO) {
-    const inserted = await query(
-      `INSERT INTO users (full_name, email, phone, password_hash, role, city)
-       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-      [u.fullName, u.email, u.phone, hash, u.role, u.city]
+
+  for (const account of DEMO) {
+    const { rows } = await query(
+      `INSERT INTO users (full_name, email, phone, password_hash, role, city, profile_pic)
+       VALUES ($1, $2, $3, $4, $5, $6, NULL)
+       ON CONFLICT (email) DO UPDATE
+         SET profile_pic = NULL
+       RETURNING id`,
+      [
+        account.fullName,
+        account.email,
+        account.phone,
+        passwordHash,
+        account.role,
+        account.city,
+      ]
     );
-    ids[u.email] = inserted.rows[0].id;
+    ids[account.email] = rows[0].id;
   }
 
-  const farmers = DEMO.filter((d) => d.role === "farmer");
-  const merchants = DEMO.filter((d) => d.role === "merchant");
   const { getReferencePrice } = await import("./services/priceIndex.js");
-
-  for (const farmer of farmers) {
-    for (const crop of CROPS) {
-      await query(
-        `INSERT INTO farmer_listings (user_id, crop, city, amount_kuntal) VALUES ($1,$2,$3,$4)`,
-        [ids[farmer.email], crop.slug, farmer.city, 6 + Math.round(Math.random() * 48)]
+  for (const [accountIndex, account] of DEMO.entries()) {
+    if (account.role === "farmer") {
+      const existing = await query(
+        "SELECT 1 FROM farmer_listings WHERE user_id = $1 LIMIT 1",
+        [ids[account.email]]
       );
+      if (!existing.rowCount) {
+        for (const [cropIndex, crop] of CROPS.entries()) {
+          const amount = 8 + ((accountIndex * 7 + cropIndex * 11) % 39);
+          await query(
+            `INSERT INTO farmer_listings (user_id, crop, city, amount_quintal)
+             VALUES ($1, $2, $3, $4)`,
+            [ids[account.email], crop.slug, account.city, amount]
+          );
+        }
+      }
+    } else {
+      const existing = await query(
+        "SELECT 1 FROM merchant_offers WHERE user_id = $1 LIMIT 1",
+        [ids[account.email]]
+      );
+      if (!existing.rowCount) {
+        for (const crop of CROPS) {
+          const reference = getReferencePrice(crop.slug, account.city);
+          await query(
+            `INSERT INTO merchant_offers (user_id, crop, city, price_etb, reference_price)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [ids[account.email], crop.slug, account.city, Math.round(reference.price * 0.98), reference.price]
+          );
+        }
+      }
     }
   }
 
-  for (const merchant of merchants) {
-    for (const crop of CROPS) {
-      const ref = getReferencePrice(crop.slug, merchant.city);
-      const price = Math.round(ref.price * 0.98);
-      await query(
-        `INSERT INTO merchant_offers (user_id, crop, city, price_etb, reference_price) VALUES ($1,$2,$3,$4,$5)`,
-        [ids[merchant.email], crop.slug, merchant.city, price, ref.price]
-      );
-    }
+  for (const [fromEmail, toEmail] of DEMO_FAVORITES) {
+    await query(
+      `INSERT INTO favorites (user_id, target_user_id) VALUES ($1, $2)
+       ON CONFLICT (user_id, target_user_id) DO NOTHING`,
+      [ids[fromEmail], ids[toEmail]]
+    );
   }
 
-  await query(`INSERT INTO favorites (user_id, target_user_id) VALUES ($1,$2), ($3,$4), ($5,$6), ($7,$8)`, [
-    ids["yonas@geberewu.test"],
-    ids["abebe@geberewu.test"],
-    ids["selam@geberewu.test"],
-    ids["tigist@geberewu.test"],
-    ids["abebe@geberewu.test"],
-    ids["yonas@geberewu.test"],
-    ids["helen@geberewu.test"],
-    ids["aster@geberewu.test"],
-  ]);
-
-  console.log("Seeded demo users. Password for all: password123");
-  void CITIES;
+  console.log("Seeded demo farmers, merchants, market posts, and favorites. Password for all: password123");
 }

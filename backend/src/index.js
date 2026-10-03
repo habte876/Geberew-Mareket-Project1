@@ -14,7 +14,7 @@ import marketRoutes from "./routes/market.js";
 import favoriteRoutes from "./routes/favorites.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import { refreshAllReferencePrices } from "./services/priceIndex.js";
-import { seedIfEmpty } from "./seed.js";
+import { seedDemoData } from "./seed.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadDir = path.join(__dirname, "../uploads");
@@ -63,7 +63,7 @@ const port = Number(process.env.PORT || 4000);
 
 initDb()
   .then(() => refreshAllReferencePrices(query).catch((err) => console.warn("Price index refresh:", err.message)))
-  .then(() => seedIfEmpty())
+  .then(() => seedDemoData())
   .then(() => {
     app.listen(port, () => console.log(`Geberewu Market API on http://localhost:${port}`));
   })

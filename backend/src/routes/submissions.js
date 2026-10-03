@@ -18,15 +18,15 @@ router.post("/farmer", authRequired, async (req, res) => {
   const phoneError = requirePhone(req.user);
   if (phoneError) return res.status(400).json({ error: phoneError, code: "PHONE_REQUIRED" });
 
-  const { crop, amountKuntal } = req.body || {};
+  const { crop, amountQuintal } = req.body || {};
   if (!CROP_SLUGS.includes(crop)) return res.status(400).json({ error: "Choose a crop from the list." });
-  const amount = Number(amountKuntal);
+  const amount = Number(amountQuintal);
   if (!Number.isFinite(amount) || amount <= 0) {
-    return res.status(400).json({ error: "Amount must be greater than 0 kuntal." });
+    return res.status(400).json({ error: "Amount must be greater than 0 quintals." });
   }
 
   const { rows } = await query(
-    `INSERT INTO farmer_listings (user_id, crop, city, amount_kuntal)
+    `INSERT INTO farmer_listings (user_id, crop, city, amount_quintal)
      VALUES ($1, $2, $3, $4)
      RETURNING *`,
     [req.user.id, crop, req.user.city, amount]

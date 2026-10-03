@@ -37,7 +37,7 @@ export async function initDb() {
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       crop TEXT NOT NULL,
       city TEXT NOT NULL,
-      amount_kuntal NUMERIC(12,2) NOT NULL CHECK (amount_kuntal > 0),
+      amount_quintal NUMERIC(12,2) NOT NULL CHECK (amount_quintal > 0),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
@@ -81,7 +81,6 @@ export async function initDb() {
     CREATE INDEX IF NOT EXISTS idx_offers_crop_city ON merchant_offers (crop, city, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_users_role_city ON users (role, city);
   `);
-  await query(await readFile(new URL("../migrations/001_create_otps.sql", import.meta.url), "utf8"));
-  await query(await readFile(new URL("../migrations/002_remove_legacy_reset_tokens.sql", import.meta.url), "utf8"));
-  await query(await readFile(new URL("../migrations/003_add_account_verification.sql", import.meta.url), "utf8"));
+  await query(await readFile(new URL("../migrations/004_remove_password_reset_and_verification.sql", import.meta.url), "utf8"));
+  await query(await readFile(new URL("../migrations/005_rename_amount_to_quintal.sql", import.meta.url), "utf8"));
 }
